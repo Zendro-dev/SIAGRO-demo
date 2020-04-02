@@ -3,7 +3,7 @@
   "storageType": "cenzontle-webservice-adapter",
   "adapterName": "MEASUREMENT_GEF",
   "regex": "gef",
-  "url": "http://localhost:3030/graphql",
+  "url": "http://instance_3_gef_sdb_science_db_graphql_server_1:3003/graphql",
   "attributes": {
     "measurement_id": "String",
     "name": "String",

@@ -7,7 +7,7 @@ const {
 let axios = axios_general.create();
 axios.defaults.timeout = globals.MAX_TIME_OUT;
 
-const remoteCenzontleURL = "http://localhost:5050/graphql";
+const remoteCenzontleURL = "http://instance_2_ne014_sdb_science_db_graphql_server_1:3002/graphql";
 const iriRegex = new RegExp('NE014');
 
 module.exports = class ACCESSION_YOLANDAPROJECT {

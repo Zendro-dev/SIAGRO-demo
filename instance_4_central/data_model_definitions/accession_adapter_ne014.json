@@ -3,7 +3,7 @@
   "storageType": "ddm-adapter",
   "adapterName": "ACCESSION_YOLANDAPROJECT",
   "regex": "NE014",
-  "url": "http://localhost:5050/graphql",
+  "url": "http://instance_2_ne014_sdb_science_db_graphql_server_1:3002/graphql",
   "attributes": {
     "accession_id": "String",
     "collectors_name": "String",
