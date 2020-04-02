@@ -1,0 +1,74 @@
+version: "3.7"
+
+services:
+  sdb_postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    volumes:
+      - sdb_db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  sdb_science_db_graphql_server:
+    depends_on:
+      - sdb_postgres
+    build:
+      context: ./graphql-server
+      dockerfile: Dockerfile.graphql_server
+    ports:
+      - 3000:3000
+    environment:
+      - PORT=3000
+      - REQUIRE_SIGN_IN=false
+    volumes:
+      - .:/usr/ScienceDbStarterPack
+      # Use the Sequelize config adjusted for the Docker setup of ScienceDbStarterPack:
+      - ./graphql-server/config/config_postgres_docker.json:/usr/ScienceDbStarterPack/graphql-server/config/config.json
+    networks:
+      - backend
+      - SIAGRO
+    # Await POSTGRES role and DB creation, migrate schema, then start web
+    # server:
+    command:
+      - /bin/sh
+      - -c
+      - |
+        npm install
+        ./migrateDbAndStartServer.sh
+
+#  sdb_science_db_app_server:
+#    depends_on:
+#      - sdb_postgres
+#      - sdb_science_db_graphql_server
+#    build:
+#      context: ./single-page-app
+#      dockerfile: Dockerfile.app
+#    ports:
+#      - 8000:8000
+#    environment:
+#      - PORT=8000
+#      - REACT_APP_CENZ_GRAPHQL_SERVER_URL=http://localhost:3000/graphql
+#      - REACT_APP_CENZ_LOGIN_URL=http://localhost:3000/login
+#      - REACT_APP_CENZ_EXPORT_URL=http://localhost:3000/export
+#      - REACT_APP_CENZ_MAX_UPLOAD_SIZE=500
+#    volumes:
+#      - .:/usr/ScienceDbStarterPack
+#    networks:
+#      - SIAGRO
+#    # Install dependencies and start single-page-app-server in development
+#    # mode.
+#    command:
+#      - /bin/sh
+#      - -c
+#      - |
+#        npm install
+#        npm start
+
+volumes:
+  sdb_db_data:
+
+networks:
+  backend:
+  SIAGRO:
+    external: true

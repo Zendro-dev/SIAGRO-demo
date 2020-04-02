@@ -1,0 +1,34 @@
+{
+  "model": "Taxon",
+  "storageType": "webservice",
+  "attributes": {
+    "id": "String",
+    "taxon": "String",
+    "categoria": "String",
+    "estatus": "String",
+    "nombreAutoridad": "String",
+    "citaNomenclatural": "String",
+    "fuente": "String",
+    "ambiente":"String",
+    "grupoSNIB": "String",
+    "categoriaResidencia": "String",
+    "nom": "String",
+    "cites": "String",
+    "iucn": "String",
+    "prioritarias": "String",
+    "endemismo": "String"
+  },
+  "associations": {
+    "accessions": {
+      "type": "to_many",
+      "target": "Accession",
+      "targetKey": "taxon_id",
+      "keyIn" : "Accession",
+      "targetStorageType": "sql",
+      "label": "collection_name",
+      "sublabel": "accession_id"
+    }
+  },
+
+  "internalId": "id"
+}
