@@ -130,6 +130,7 @@ module.exports = class Measurement extends Sequelize.Model {
 
 
         }, {
+            indexes: ['individual_id', 'accessionId'],
             modelName: "measurement",
             tableName: "measurements",
             sequelize
@@ -266,8 +267,7 @@ module.exports = class Measurement extends Sequelize.Model {
             }
             //woptions: copy of {options} with only 'where' options
             let woptions = {};
-            woptions['where'] = {
-                ...options['where']
+            woptions['where'] = { ...options['where']
             };
             /*
              *  Count (with only where-options)
@@ -363,24 +363,24 @@ module.exports = class Measurement extends Sequelize.Model {
                         let promises_associations = [];
 
                         if (input.addIndividual) {
-                            //let wrong_ids =  await helper.checkExistence(input.addIndividual, models.individual);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model individual were not found.`);
-                            //}else{
-                            promises_associations.push(item.setIndividual(input.addIndividual, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addIndividual, models.individual);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model individual were not found.`);
+                            } else {
+                                promises_associations.push(item.setIndividual(input.addIndividual, {
+                                    transaction: t
+                                }));
+                            }
                         }
                         if (input.addAccession) {
-                            //let wrong_ids =  await helper.checkExistence(input.addAccession, models.accession);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
-                            //}else{
-                            promises_associations.push(item.setAccession(input.addAccession, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addAccession, models.accession);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model accession were not found.`);
+                            } else {
+                                promises_associations.push(item.setAccession(input.addAccession, {
+                                    transaction: t
+                                }));
+                            }
                         }
                         return Promise.all(promises_associations).then(() => {
                             return item
@@ -427,14 +427,14 @@ module.exports = class Measurement extends Sequelize.Model {
                             transaction: t
                         });
                         if (input.addIndividual) {
-                            //let wrong_ids =  await helper.checkExistence(input.addIndividual, models.individual);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model individual were not found.`);
-                            //}else{
-                            promises_associations.push(updated.setIndividual(input.addIndividual, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addIndividual, models.individual);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids ${wrong_ids.join(",")} in model individual were not found.`);
+                            } else {
+                                promises_associations.push(updated.setIndividual(input.addIndividual, {
+                                    transaction: t
+                                }));
+                            }
                         } else if (input.addIndividual === null) {
                             promises_associations.push(updated.setIndividual(input.addIndividual, {
                                 transaction: t
@@ -452,14 +452,14 @@ module.exports = class Measurement extends Sequelize.Model {
                             }
                         }
                         if (input.addAccession) {
-                            //let wrong_ids =  await helper.checkExistence(input.addAccession, models.accession);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
-                            //}else{
-                            promises_associations.push(updated.setAccession(input.addAccession, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addAccession, models.accession);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
+                            } else {
+                                promises_associations.push(updated.setAccession(input.addAccession, {
+                                    transaction: t
+                                }));
+                            }
                         } else if (input.addAccession === null) {
                             promises_associations.push(updated.setAccession(input.addAccession, {
                                 transaction: t

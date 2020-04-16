@@ -179,8 +179,7 @@ module.exports = class role_to_user extends Sequelize.Model {
             }
             //woptions: copy of {options} with only 'where' options
             let woptions = {};
-            woptions['where'] = {
-                ...options['where']
+            woptions['where'] = { ...options['where']
             };
             /*
              *  Count (with only where-options)

@@ -8,7 +8,7 @@ COPY . .
 
 # Clone the skeleton project and install dependencies
 RUN chmod u+x ./migrateDbAndStartServer.sh && \
-  rm -r .git* && \
+  #rm -r .git* && \
   mv ./config/config_postgres_docker.json ./config/config.json && \
   npm install
 

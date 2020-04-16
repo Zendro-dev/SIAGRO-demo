@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const path = require('path');
 const models = require(path.join(__dirname, '..', 'models_index.js'));
+const axios = require('axios');
 
 // An exact copy of the the model definition that comes from the .json file
 const definition = {
@@ -100,7 +101,54 @@ module.exports = class Taxon {
         /*
         YOUR CODE GOES HERE
         */
-        throw new Error('readOneTaxon is not implemented');
+        //throw new Error('readOneTaxon is not implemented');
+
+     let query = `
+       query
+         taxon
+         {
+           taxon(id:"${id}")
+           {
+             id
+             taxon
+             categoria
+             estatus
+             nombreAutoridad
+             citaNomenclatural
+             fuente
+             ambiente
+             grupoSNIB
+             categoriaResidencia
+             nom
+             cites
+             iucn
+             prioritarias
+             endemismo
+           }
+         }`;
+
+     /**
+      * Debug
+      */
+     //console.log("\nquery: gql:\n", query, "\nvariables: gql:\n");
+
+     return axios.post("http://zacatuche.conabio.gob.mx:4000/graphql", {
+         query: query
+     }).then(res => {
+         //check
+         if (res && res.data && res.data.data) {
+
+             console.log("TAXON: ", res.data.data.taxon);
+             return new Taxon(res.data.data.taxon);
+         } else {
+             throw new Error(`Invalid response from remote cenz-server: http://zacatuche.conabio.gob.mx:4000/graphql`);
+         }
+     }).catch(error => {
+         error['url'] = "http://zacatuche.conabio.gob.mx:4000/graphql";
+         handleError(error);
+     });
+     //throw new Error('readOneTaxon is not implemented');
+
     }
 
     static countRecords(search) {

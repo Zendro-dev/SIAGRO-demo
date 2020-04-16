@@ -242,6 +242,7 @@ module.exports = class Accession extends Sequelize.Model {
 
 
         }, {
+            indexes: ['taxon_id', 'locationId'],
             modelName: "accession",
             tableName: "accessions",
             sequelize
@@ -382,8 +383,7 @@ module.exports = class Accession extends Sequelize.Model {
             }
             //woptions: copy of {options} with only 'where' options
             let woptions = {};
-            woptions['where'] = {
-                ...options['where']
+            woptions['where'] = { ...options['where']
             };
             /*
              *  Count (with only where-options)
@@ -478,35 +478,35 @@ module.exports = class Accession extends Sequelize.Model {
                         });
                         let promises_associations = [];
                         if (input.addIndividuals) {
-                            //let wrong_ids =  await helper.checkExistence(input.addIndividuals, models.individual);
-                            //if(wrong_ids.length > 0){
-                            //    throw new Error(`Ids ${wrong_ids.join(",")} in model individual were not found.`);
-                            //}else{
-                            promises_associations.push(item.setIndividuals(input.addIndividuals, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addIndividuals, models.individual);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model individual were not found.`);
+                            } else {
+                                promises_associations.push(item.setIndividuals(input.addIndividuals, {
+                                    transaction: t
+                                }));
+                            }
                         }
                         if (input.addMeasurements) {
-                            //let wrong_ids =  await helper.checkExistence(input.addMeasurements, models.measurement);
-                            //if(wrong_ids.length > 0){
-                            //    throw new Error(`Ids ${wrong_ids.join(",")} in model measurement were not found.`);
-                            //}else{
-                            promises_associations.push(item.setMeasurements(input.addMeasurements, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addMeasurements, models.measurement);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model measurement were not found.`);
+                            } else {
+                                promises_associations.push(item.setMeasurements(input.addMeasurements, {
+                                    transaction: t
+                                }));
+                            }
                         }
 
                         if (input.addLocation) {
-                            //let wrong_ids =  await helper.checkExistence(input.addLocation, models.location);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model location were not found.`);
-                            //}else{
-                            promises_associations.push(item.setLocation(input.addLocation, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addLocation, models.location);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model location were not found.`);
+                            } else {
+                                promises_associations.push(item.setLocation(input.addLocation, {
+                                    transaction: t
+                                }));
+                            }
                         }
                         return Promise.all(promises_associations).then(() => {
                             return item
@@ -514,12 +514,12 @@ module.exports = class Accession extends Sequelize.Model {
                     });
 
                     if (input.addTaxon) {
-                        //let wrong_ids =  await helper.checkExistence(input.addTaxon, models.taxon);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model taxon were not found.`);
-                        //}else{
-                        await result._addTaxon(input.addTaxon);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addTaxon, models.taxon);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model taxon were not found.`);
+                        } else {
+                            await result._addTaxon(input.addTaxon);
+                        }
                     }
                     return result;
                 } catch (error) {
@@ -562,59 +562,59 @@ module.exports = class Accession extends Sequelize.Model {
                         });
 
                         if (input.addIndividuals) {
-                            //let wrong_ids =  await helper.checkExistence(input.addIndividuals, models.individual);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model individual were not found.`);
-                            //}else{
-                            promises_associations.push(updated.addIndividuals(input.addIndividuals, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addIndividuals, models.individual);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model individual were not found.`);
+                            } else {
+                                promises_associations.push(updated.addIndividuals(input.addIndividuals, {
+                                    transaction: t
+                                }));
+                            }
                         }
 
                         if (input.removeIndividuals) {
-                            //let ids_associated = await item.getIndividuals().map(t => `${t[models.individual.idAttribute()]}`);
-                            //await helper.asyncForEach(input.removeIndividuals, id =>{
-                            //  if(!ids_associated.includes(id)){
-                            //    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
-                            //  }
-                            //});
+                            let ids_associated = await item.getIndividuals().map(t => `${t[models.individual.idAttribute()]}`);
+                            await helper.asyncForEach(input.removeIndividuals, id => {
+                                if (!ids_associated.includes(id)) {
+                                    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
+                                }
+                            });
                             promises_associations.push(updated.removeIndividuals(input.removeIndividuals, {
                                 transaction: t
                             }));
                         }
 
                         if (input.addMeasurements) {
-                            //let wrong_ids =  await helper.checkExistence(input.addMeasurements, models.measurement);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model measurement were not found.`);
-                            //}else{
-                            promises_associations.push(updated.addMeasurements(input.addMeasurements, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addMeasurements, models.measurement);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model measurement were not found.`);
+                            } else {
+                                promises_associations.push(updated.addMeasurements(input.addMeasurements, {
+                                    transaction: t
+                                }));
+                            }
                         }
 
                         if (input.removeMeasurements) {
-                            //let ids_associated = await item.getMeasurements().map(t => `${t[models.measurement.idAttribute()]}`);
-                            //await helper.asyncForEach(input.removeMeasurements, id =>{
-                            //  if(!ids_associated.includes(id)){
-                            //    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
-                            //  }
-                            //});
+                            let ids_associated = await item.getMeasurements().map(t => `${t[models.measurement.idAttribute()]}`);
+                            await helper.asyncForEach(input.removeMeasurements, id => {
+                                if (!ids_associated.includes(id)) {
+                                    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
+                                }
+                            });
                             promises_associations.push(updated.removeMeasurements(input.removeMeasurements, {
                                 transaction: t
                             }));
                         }
                         if (input.addLocation) {
-                            //let wrong_ids =  await helper.checkExistence(input.addLocation, models.location);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model location were not found.`);
-                            //}else{
-                            promises_associations.push(updated.setLocation(input.addLocation, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addLocation, models.location);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids ${wrong_ids.join(",")} in model location were not found.`);
+                            } else {
+                                promises_associations.push(updated.setLocation(input.addLocation, {
+                                    transaction: t
+                                }));
+                            }
                         } else if (input.addLocation === null) {
                             promises_associations.push(updated.setLocation(input.addLocation, {
                                 transaction: t
@@ -640,20 +640,19 @@ module.exports = class Accession extends Sequelize.Model {
                     if (input.addTaxon) {
                         let wrong_ids = await helper.checkExistence(input.addTaxon, models.taxon);
                         if (wrong_ids.length > 0) {
-                            throw new Error(`Ids ${wrong_ids.join(",")} in model taxon were not found.`);
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model taxon were not found.`);
                         } else {
                             await result._addTaxon(input.addTaxon);
                         }
                     }
 
                     if (input.removeTaxon) {
-                        //let taxon = await result.taxonImpl();
-                        //if(taxon && input.removeTaxon === `${taxon[models.taxon.idAttribute()]}`){
-                        await result._removeTaxon(input.removeTaxon);
-                        //}
-                        //else{
-                        //  throw new Error("The association you're trying to remove it doesn't exists");
-                        //}
+                        let wrong_ids = await helper.checkIdsToRemove(result, 'taxon', input.removeTaxon, models.taxon.idAttribute());
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.map(i=> `"${i}"`).join(",")} that you are trying to remove are not assciated with this record.`)
+                        } else {
+                            await result._removeTaxon(input.removeTaxon);
+                        }
                     }
 
 

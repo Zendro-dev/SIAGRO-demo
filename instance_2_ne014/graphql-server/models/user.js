@@ -205,8 +205,7 @@ module.exports = class user extends Sequelize.Model {
             }
             //woptions: copy of {options} with only 'where' options
             let woptions = {};
-            woptions['where'] = {
-                ...options['where']
+            woptions['where'] = { ...options['where']
             };
             /*
              *  Count (with only where-options)
@@ -301,14 +300,14 @@ module.exports = class user extends Sequelize.Model {
                         });
                         let promises_associations = [];
                         if (input.addRoles) {
-                            //let wrong_ids =  await helper.checkExistence(input.addRoles, models.role);
-                            //if(wrong_ids.length > 0){
-                            //    throw new Error(`Ids ${wrong_ids.join(",")} in model role were not found.`);
-                            //}else{
-                            promises_associations.push(item.setRoles(input.addRoles, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addRoles, models.role);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model role were not found.`);
+                            } else {
+                                promises_associations.push(item.setRoles(input.addRoles, {
+                                    transaction: t
+                                }));
+                            }
                         }
 
                         return Promise.all(promises_associations).then(() => {
@@ -357,23 +356,23 @@ module.exports = class user extends Sequelize.Model {
                         });
 
                         if (input.addRoles) {
-                            //let wrong_ids =  await helper.checkExistence(input.addRoles, models.role);
-                            //if(wrong_ids.length > 0){
-                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model role were not found.`);
-                            //}else{
-                            promises_associations.push(updated.addRoles(input.addRoles, {
-                                transaction: t
-                            }));
-                            //}
+                            let wrong_ids = await helper.checkExistence(input.addRoles, models.role);
+                            if (wrong_ids.length > 0) {
+                                throw new Error(`Ids: ${wrong_ids.join(",")} in model role were not found.`);
+                            } else {
+                                promises_associations.push(updated.addRoles(input.addRoles, {
+                                    transaction: t
+                                }));
+                            }
                         }
 
                         if (input.removeRoles) {
-                            //let ids_associated = await item.getRoles().map(t => `${t[models.role.idAttribute()]}`);
-                            //await helper.asyncForEach(input.removeRoles, id =>{
-                            //  if(!ids_associated.includes(id)){
-                            //    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
-                            //  }
-                            //});
+                            let ids_associated = await item.getRoles().map(t => `${t[models.role.idAttribute()]}`);
+                            await helper.asyncForEach(input.removeRoles, id => {
+                                if (!ids_associated.includes(id)) {
+                                    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
+                                }
+                            });
                             promises_associations.push(updated.removeRoles(input.removeRoles, {
                                 transaction: t
                             }));
@@ -602,8 +601,7 @@ module.exports = class user extends Sequelize.Model {
             }
             //woptions: copy of {options} with only 'where' options
             let woptions = {};
-            woptions['where'] = {
-                ...options['where']
+            woptions['where'] = { ...options['where']
             };
 
             /*

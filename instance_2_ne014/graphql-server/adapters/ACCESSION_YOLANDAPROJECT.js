@@ -249,6 +249,7 @@ module.exports = class ACCESSION_YOLANDAPROJECT extends Sequelize.Model {
 
 
         }, {
+            indexes: ['taxon_id', 'locationId'],
             modelName: "accession",
             tableName: "accessions",
             sequelize
@@ -381,8 +382,7 @@ module.exports = class ACCESSION_YOLANDAPROJECT extends Sequelize.Model {
             }
             //woptions: copy of {options} with only 'where' options
             let woptions = {};
-            woptions['where'] = {
-                ...options['where']
+            woptions['where'] = { ...options['where']
             };
             /*
              *  Count (with only where-options)
@@ -468,11 +468,6 @@ module.exports = class ACCESSION_YOLANDAPROJECT extends Sequelize.Model {
     }
 
     static addOne(input) {
-        /**
-         * Debug
-         */
-        console.log("-@@@------ adapter: (", this.adapterType, ") : ", this.adapterName, "\n- on: addOne: \n- input: ", input);
-
         return validatorUtil.ifHasValidatorFunctionInvoke('validateForCreate', this, input)
             .then(async (valSuccess) => {
                 try {
@@ -487,36 +482,36 @@ module.exports = class ACCESSION_YOLANDAPROJECT extends Sequelize.Model {
                     });
 
                     if (input.addTaxon) {
-                        //let wrong_ids =  await helper.checkExistence(input.addTaxon, models.taxon);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model taxon were not found.`);
-                        //}else{
-                        await result._addTaxon(input.addTaxon);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addTaxon, models.taxon);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model taxon were not found.`);
+                        } else {
+                            await result._addTaxon(input.addTaxon);
+                        }
                     }
                     if (input.addLocation) {
-                        //let wrong_ids =  await helper.checkExistence(input.addLocation, models.location);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model location were not found.`);
-                        //}else{
-                        await result._addLocation(input.addLocation);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addLocation, models.location);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model location were not found.`);
+                        } else {
+                            await result._addLocation(input.addLocation);
+                        }
                     }
                     if (input.addIndividuals) {
-                        //let wrong_ids =  await helper.checkExistence(input.addIndividuals, models.individual);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model individual were not found.`);
-                        //}else{
-                        await result._addIndividuals(input.addIndividuals);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addIndividuals, models.individual);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model individual were not found.`);
+                        } else {
+                            await result._addIndividuals(input.addIndividuals);
+                        }
                     }
                     if (input.addMeasurements) {
-                        //let wrong_ids =  await helper.checkExistence(input.addMeasurements, models.measurement);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model measurement were not found.`);
-                        //}else{
-                        await result._addMeasurements(input.addMeasurements);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addMeasurements, models.measurement);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model measurement were not found.`);
+                        } else {
+                            await result._addMeasurements(input.addMeasurements);
+                        }
                     }
                     return result;
                 } catch (error) {
@@ -551,11 +546,6 @@ module.exports = class ACCESSION_YOLANDAPROJECT extends Sequelize.Model {
     }
 
     static updateOne(input) {
-        /**
-         * Debug
-         */
-        console.log("-@@@------ adapter: (", this.adapterType, ") : ", this.adapterName, "\n- on: updateOne: input: ", input);
-
         return validatorUtil.ifHasValidatorFunctionInvoke('validateForUpdate', this, input)
             .then(async (valSuccess) => {
                 try {
@@ -573,78 +563,78 @@ module.exports = class ACCESSION_YOLANDAPROJECT extends Sequelize.Model {
                     });
 
                     if (input.addTaxon) {
-                        //let wrong_ids =  await helper.checkExistence(input.addTaxon, models.taxon);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model taxon were not found.`);
-                        //}else{
-                        await result._addTaxon(input.addTaxon);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addTaxon, models.taxon);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids ${wrong_ids.join(",")} in model taxon were not found.`);
+                        } else {
+                            await result._addTaxon(input.addTaxon);
+                        }
                     }
 
                     if (input.removeTaxon) {
-                        //let taxon = await result.taxonImpl();
-                        //if(taxon && input.removeTaxon === `${taxon[models.taxon.idAttribute()]}`){
-                        await result._removeTaxon(input.removeTaxon);
-                        //}
-                        //else{
-                        //  throw new Error("The association you're trying to remove it doesn't exists");
-                        //}
+                        let result_model_instance = new models.accession(result);
+                        let wrong_ids = await helper.checkIdsToRemove(result_model_instance, 'taxon', input.removeTaxon, models.taxon.idAttribute());
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.map(i=> `"${i}"`).join(",")} that you are trying to remove are not assciated with this record.`)
+                        } else {
+                            await result._removeTaxon(input.removeTaxon);
+                        }
                     }
                     if (input.addLocation) {
-                        //let wrong_ids =  await helper.checkExistence(input.addLocation, models.location);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model location were not found.`);
-                        //}else{
-                        await result._addLocation(input.addLocation);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addLocation, models.location);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids ${wrong_ids.join(",")} in model location were not found.`);
+                        } else {
+                            await result._addLocation(input.addLocation);
+                        }
                     }
 
                     if (input.removeLocation) {
-                        //let location = await result.locationImpl();
-                        //if(location && input.removeLocation === `${location[models.location.idAttribute()]}`){
-                        await result._removeLocation(input.removeLocation);
-                        //}
-                        //else{
-                        //  throw new Error("The association you're trying to remove it doesn't exists");
-                        //}
+                        let result_model_instance = new models.accession(result);
+                        let wrong_ids = await helper.checkIdsToRemove(result_model_instance, 'location', input.removeLocation, models.location.idAttribute());
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.map(i=> `"${i}"`).join(",")} that you are trying to remove are not assciated with this record.`)
+                        } else {
+                            await result._removeLocation(input.removeLocation);
+                        }
                     }
 
 
                     if (input.addIndividuals) {
-                        //let wrong_ids =  await helper.checkExistence(input.addIndividuals, models.individual);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model individual were not found.`);
-                        //}else{
-                        await result._addIndividuals(input.addIndividuals);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addIndividuals, models.individual);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model individual were not found.`);
+                        } else {
+                            await result._addIndividuals(input.addIndividuals);
+                        }
                     }
 
                     if (input.removeIndividuals) {
-                        //let ids_associated = await result.individualsImpl().map(t => `${t[models.individual.idAttribute()]}`);
-                        //await helper.asyncForEach(input.removeIndividuals, async id =>{
-                        //  if(!ids_associated.includes(id)){
-                        //    throw new Error(`The association with id ${id} that you're trying to remove desn't exist`);
-                        //  }
-                        //});
-                        await result._removeIndividuals(input.removeIndividuals);
+                        let result_model_instance = new models.accession(result);
+                        let wrong_ids = await helper.checkIdsToRemove(result_model_instance, 'individualsConnection', input.removeIndividuals, models.individual.idAttribute());
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.map(i=> `"${i}"`).join(",")} that you are trying to remove are not assciated with this record.`)
+                        } else {
+                            await result._removeIndividuals(input.removeIndividuals);
+                        }
                     }
                     if (input.addMeasurements) {
-                        //let wrong_ids =  await helper.checkExistence(input.addMeasurements, models.measurement);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model measurement were not found.`);
-                        //}else{
-                        await result._addMeasurements(input.addMeasurements);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addMeasurements, models.measurement);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model measurement were not found.`);
+                        } else {
+                            await result._addMeasurements(input.addMeasurements);
+                        }
                     }
 
                     if (input.removeMeasurements) {
-                        //let ids_associated = await result.measurementsImpl().map(t => `${t[models.measurement.idAttribute()]}`);
-                        //await helper.asyncForEach(input.removeMeasurements, async id =>{
-                        //  if(!ids_associated.includes(id)){
-                        //    throw new Error(`The association with id ${id} that you're trying to remove desn't exist`);
-                        //  }
-                        //});
-                        await result._removeMeasurements(input.removeMeasurements);
+                        let result_model_instance = new models.accession(result);
+                        let wrong_ids = await helper.checkIdsToRemove(result_model_instance, 'measurementsConnection', input.removeMeasurements, models.measurement.idAttribute());
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.map(i=> `"${i}"`).join(",")} that you are trying to remove are not assciated with this record.`)
+                        } else {
+                            await result._removeMeasurements(input.removeMeasurements);
+                        }
                     }
 
 

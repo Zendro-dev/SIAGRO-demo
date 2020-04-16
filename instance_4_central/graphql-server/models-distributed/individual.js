@@ -97,7 +97,7 @@ module.exports = class Individual {
 
     /**
      * registeredAdapters - Returns an object which has a key for each
-     * adapter on adapter/index.js. Each key of the object will have 
+     * adapter on adapter/index.js. Each key of the object will have
      *
      * @return {string}     baseUrl from request.
      */
@@ -146,12 +146,12 @@ module.exports = class Individual {
         let authAdapters = [];
         /**
          * Differentiated cases:
-         *    if authorizedAdapters is defined: 
+         *    if authorizedAdapters is defined:
          *      - called from resolver.
          *      - authorizedAdapters will no be modified.
-         * 
-         *    if authorizedAdapters is not defined: 
-         *      - called internally 
+         *
+         *    if authorizedAdapters is not defined:
+         *      - called internally
          *      - authorizedAdapters will be set to registered adapters.
          */
         if (authorizedAdapters === undefined) {
@@ -163,9 +163,9 @@ module.exports = class Individual {
         let promises = authAdapters.map(adapter => {
             /**
              * Differentiated cases:
-             *   sql-adapter: 
+             *   sql-adapter:
              *      resolve with current parameters.
-             *   
+             *
              *   ddm-adapter:
              *   cenzontle-webservice-adapter:
              *   generic-adapter:
@@ -213,12 +213,12 @@ module.exports = class Individual {
         let authAdapters = [];
         /**
          * Differentiated cases:
-         *    if authorizedAdapters is defined: 
+         *    if authorizedAdapters is defined:
          *      - called from resolver.
          *      - authorizedAdapters will no be modified.
-         * 
-         *    if authorizedAdapters is not defined: 
-         *      - called internally 
+         *
+         *    if authorizedAdapters is not defined:
+         *      - called internally
          *      - authorizedAdapters will be set to registered adapters.
          */
         if (authorizedAdapters === undefined) {
@@ -237,9 +237,9 @@ module.exports = class Individual {
         let promises = authAdapters.map(adapter => {
             /**
              * Differentiated cases:
-             *   sql-adapter: 
+             *   sql-adapter:
              *      resolve with current parameters.
-             *   
+             *
              *   ddm-adapter:
              *   cenzontle-webservice-adapter:
              *   generic-adapter:
@@ -249,6 +249,7 @@ module.exports = class Individual {
                 case 'ddm-adapter':
                 case 'generic-adapter':
                     let nsearch = helper.addExclusions(search, adapter.adapterName, Object.values(this.registeredAdapters));
+                    console.log(`******************** ${JSON.stringify(nsearch)} *************************`);
                     return adapter.readAllCursor(nsearch, order, pagination).catch(benignErrors => benignErrors);
 
                 case 'sql-adapter':

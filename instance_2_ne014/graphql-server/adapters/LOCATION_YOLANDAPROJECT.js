@@ -145,6 +145,7 @@ module.exports = class LOCATION_YOLANDAPROJECT extends Sequelize.Model {
 
 
         }, {
+            indexes: [],
             modelName: "location",
             tableName: "locations",
             sequelize
@@ -277,8 +278,7 @@ module.exports = class LOCATION_YOLANDAPROJECT extends Sequelize.Model {
             }
             //woptions: copy of {options} with only 'where' options
             let woptions = {};
-            woptions['where'] = {
-                ...options['where']
+            woptions['where'] = { ...options['where']
             };
             /*
              *  Count (with only where-options)
@@ -364,11 +364,6 @@ module.exports = class LOCATION_YOLANDAPROJECT extends Sequelize.Model {
     }
 
     static addOne(input) {
-        /**
-         * Debug
-         */
-        console.log("-@@@------ adapter: (", this.adapterType, ") : ", this.adapterName, "\n- on: addOne: \n- input: ", input);
-
         return validatorUtil.ifHasValidatorFunctionInvoke('validateForCreate', this, input)
             .then(async (valSuccess) => {
                 try {
@@ -383,12 +378,12 @@ module.exports = class LOCATION_YOLANDAPROJECT extends Sequelize.Model {
                     });
 
                     if (input.addAccessions) {
-                        //let wrong_ids =  await helper.checkExistence(input.addAccessions, models.accession);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
-                        //}else{
-                        await result._addAccessions(input.addAccessions);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addAccessions, models.accession);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model accession were not found.`);
+                        } else {
+                            await result._addAccessions(input.addAccessions);
+                        }
                     }
                     return result;
                 } catch (error) {
@@ -423,11 +418,6 @@ module.exports = class LOCATION_YOLANDAPROJECT extends Sequelize.Model {
     }
 
     static updateOne(input) {
-        /**
-         * Debug
-         */
-        console.log("-@@@------ adapter: (", this.adapterType, ") : ", this.adapterName, "\n- on: updateOne: input: ", input);
-
         return validatorUtil.ifHasValidatorFunctionInvoke('validateForUpdate', this, input)
             .then(async (valSuccess) => {
                 try {
@@ -447,22 +437,22 @@ module.exports = class LOCATION_YOLANDAPROJECT extends Sequelize.Model {
 
 
                     if (input.addAccessions) {
-                        //let wrong_ids =  await helper.checkExistence(input.addAccessions, models.accession);
-                        //if(wrong_ids.length > 0){
-                        //  throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
-                        //}else{
-                        await result._addAccessions(input.addAccessions);
-                        //}
+                        let wrong_ids = await helper.checkExistence(input.addAccessions, models.accession);
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.join(",")} in model accession were not found.`);
+                        } else {
+                            await result._addAccessions(input.addAccessions);
+                        }
                     }
 
                     if (input.removeAccessions) {
-                        //let ids_associated = await result.accessionsImpl().map(t => `${t[models.accession.idAttribute()]}`);
-                        //await helper.asyncForEach(input.removeAccessions, async id =>{
-                        //  if(!ids_associated.includes(id)){
-                        //    throw new Error(`The association with id ${id} that you're trying to remove desn't exist`);
-                        //  }
-                        //});
-                        await result._removeAccessions(input.removeAccessions);
+                        let result_model_instance = new models.location(result);
+                        let wrong_ids = await helper.checkIdsToRemove(result_model_instance, 'accessionsConnection', input.removeAccessions, models.accession.idAttribute());
+                        if (wrong_ids.length > 0) {
+                            throw new Error(`Ids: ${wrong_ids.map(i=> `"${i}"`).join(",")} that you are trying to remove are not assciated with this record.`)
+                        } else {
+                            await result._removeAccessions(input.removeAccessions);
+                        }
                     }
 
 
