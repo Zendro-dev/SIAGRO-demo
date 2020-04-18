@@ -12,6 +12,8 @@ module.exports = `
     lt
     lte
     ne
+    regexp
+    notRegexp
   }
 
   enum Order{

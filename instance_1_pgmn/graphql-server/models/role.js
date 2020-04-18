@@ -97,6 +97,12 @@ module.exports = class role extends Sequelize.Model {
     static countRecords(search) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -107,6 +113,12 @@ module.exports = class role extends Sequelize.Model {
     static readAll(search, order, pagination) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -153,6 +165,12 @@ module.exports = class role extends Sequelize.Model {
          * Search conditions
          */
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -301,14 +319,14 @@ module.exports = class role extends Sequelize.Model {
                         });
                         let promises_associations = [];
                         if (input.addUsers) {
-                            let wrong_ids = await helper.checkExistence(input.addUsers, models.user);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids: ${wrong_ids.join(",")} in model user were not found.`);
-                            } else {
-                                promises_associations.push(item.setUsers(input.addUsers, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addUsers, models.user);
+                            //if(wrong_ids.length > 0){
+                            //    throw new Error(`Ids ${wrong_ids.join(",")} in model user were not found.`);
+                            //}else{
+                            promises_associations.push(item.setUsers(input.addUsers, {
+                                transaction: t
+                            }));
+                            //}
                         }
 
                         return Promise.all(promises_associations).then(() => {
@@ -357,23 +375,23 @@ module.exports = class role extends Sequelize.Model {
                         });
 
                         if (input.addUsers) {
-                            let wrong_ids = await helper.checkExistence(input.addUsers, models.user);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids: ${wrong_ids.join(",")} in model user were not found.`);
-                            } else {
-                                promises_associations.push(updated.addUsers(input.addUsers, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addUsers, models.user);
+                            //if(wrong_ids.length > 0){
+                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model user were not found.`);
+                            //}else{
+                            promises_associations.push(updated.addUsers(input.addUsers, {
+                                transaction: t
+                            }));
+                            //}
                         }
 
                         if (input.removeUsers) {
-                            let ids_associated = await item.getUsers().map(t => `${t[models.user.idAttribute()]}`);
-                            await helper.asyncForEach(input.removeUsers, id => {
-                                if (!ids_associated.includes(id)) {
-                                    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
-                                }
-                            });
+                            //let ids_associated = await item.getUsers().map(t => `${t[models.user.idAttribute()]}`);
+                            //await helper.asyncForEach(input.removeUsers, id =>{
+                            //  if(!ids_associated.includes(id)){
+                            //    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
+                            //  }
+                            //});
                             promises_associations.push(updated.removeUsers(input.removeUsers, {
                                 transaction: t
                             }));

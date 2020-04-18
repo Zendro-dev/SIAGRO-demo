@@ -793,3 +793,69 @@ module.exports.vueTable = function(req, model, strAttributes) {
     console.log("context_benignErrors: " + JSON.stringify(context.benignErrors))
     return [resultObj,context];
   }
+
+
+  module.exports.addSearchField = function ({search, field, value, operator}) {
+    let nsearch = {};
+
+    //check
+    if(operator === undefined || field === undefined || value === undefined) {
+      throw new Error('Illegal arguments, neither of: (@field, @value, @operator) can be undefined.');
+    }
+
+    /**
+     * Case 1: @search is undefined.
+     *
+     * Create a new search object with received parameters.
+     */
+    if(search === undefined) {
+      nsearch = {
+        "field": field,
+        "value": value,
+        "operator": operator
+      };
+    } else {
+
+      //check
+      if(typeof search !== 'object') {
+        throw new Error('Illegal "@search" argument type, it must be an object.');
+      }
+
+      /**
+       * Case 2: @search is defined but has not search-operation attributes defined.
+       *
+       * Create a new search object with received parameters and preserve @excludeAdapterNames
+       * attribute.
+       */
+      if(search.operator === undefined || (search.value === undefined && search.search === undefined)) {
+
+        search = {
+          "field": field,
+          "value": value,
+          "operator": operator,
+          "excludeAdapterNames": search.excludeAdapterNames
+        };
+      } else {
+        /**
+         * Case 3: @search is defined and has search-operation attributes defined.
+         *
+         * Create a new recursive search object with received parameters and preserve @excludeAdapterNames
+         * attribute.
+         */
+        let csearch = {...search};
+        let excludeAdapterNames = csearch.excludeAdapterNames;
+        delete csearch.excludeAdapterNames;
+
+        nsearch = {
+          "operator": "and",
+          "search": [{
+            "field": field,
+            "value": value,
+            "operator": operator
+          }, csearch],
+          "excludeAdapterNames": excludeAdapterNames
+        };
+      }
+    }
+    return nsearch;
+  }

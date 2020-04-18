@@ -11,6 +11,7 @@ const {
     handleError
 } = require('../utils/errors');
 const os = require('os');
+const globals = require('../config/globals');
 
 
 
@@ -204,6 +205,53 @@ accession.prototype.measurementsConnection = function({
     };
 }
 
+/**
+ * errorMessageForRecordsLimit(query) - returns error message in case the record limit is exceeded.
+ *
+ * @param {string} query The query that failed
+ */
+function errorMessageForRecordsLimit(query) {
+    return "Max record limit of " + globals.LIMIT_RECORDS + " exceeded in " + query;
+}
+
+/**
+ * checkCount(search, context, query) - Make sure that the current set of requested records does not exceed the record limit set in globals.js.
+ *
+ * @param {object} search  Search argument for filtering records
+ * @param {object} context Provided to every resolver holds contextual information like the resquest query and user info.
+ * @param {string} query The query that makes this check
+ */
+async function checkCount(search, context, query) {
+    if (await accession.countRecords(search) > context.recordsLimit) {
+        throw new Error(errorMessageForRecordsLimit(query));
+    }
+}
+
+/**
+ * checkCountForOne(context) - Make sure that the record limit is not exhausted before requesting a single record
+ *
+ * @param {object} context Provided to every resolver holds contextual information like the resquest query and user info.
+ */
+function checkCountForOne(context) {
+    if (1 > context.recordsLimit) {
+        throw new Error(errorMessageForRecordsLimit("readOneAccession"));
+    }
+}
+
+/**
+ * checkCountAgainAndAdaptLimit(context, numberOfFoundItems, query) - Make sure that the current set of requested records does not exceed the record limit set in globals.js.
+ *
+ * @param {object} context Provided to every resolver holds contextual information like the resquest query and user info.
+ * @param {number} numberOfFoundItems number of items that were found, to be subtracted from the current record limit
+ * @param {string} query The query that makes this check
+ */
+function checkCountAgainAndAdaptLimit(context, numberOfFoundItems, query) {
+    if (numberOfFoundItems > context.recordsLimit) {
+        throw new Error(errorMessageForRecordsLimit(query));
+    }
+    context.recordsLimit -= numberOfFoundItems;
+}
+
 
 
 
@@ -224,9 +272,12 @@ module.exports = {
         order,
         pagination
     }, context) {
-        return checkAuthorization(context, 'Accession', 'read').then(authorization => {
+        return checkAuthorization(context, 'Accession', 'read').then(async authorization => {
             if (authorization === true) {
-                return accession.readAll(search, order, pagination);
+                await checkCount(search, context, "accessions");
+                let resultRecords = await accession.readAll(search, order, pagination);
+                checkCountAgainAndAdaptLimit(context, resultRecords.length, "accessions");
+                return resultRecords;
             } else {
                 throw new Error("You don't have authorization to perform this action");
             }
@@ -251,8 +302,11 @@ module.exports = {
         order,
         pagination
     }, context) {
-        return checkAuthorization(context, 'Accession', 'read').then(authorization => {
+        return checkAuthorization(context, 'Accession', 'read').then(async authorization => {
             if (authorization === true) {
+                await checkCount(search, context, "accessionsConnection");
+                let resultRecords = await accession.readAll(search, order, pagination);
+                checkCountAgainAndAdaptLimit(context, resultRecords.length, "accessionsConnection");
                 return accession.readAllCursor(search, order, pagination);
             } else {
                 throw new Error("You don't have authorization to perform this action");
@@ -276,7 +330,11 @@ module.exports = {
     }, context) {
         return checkAuthorization(context, 'Accession', 'read').then(authorization => {
             if (authorization === true) {
-                return accession.readById(accession_id);
+                checkCountForOne(context);
+                let resultRecords = accession.readById(accession_id);
+                checkCountForOne(context);
+                context.recordsLimit = context.recordsLimit - 1;
+                return resultRecords;
             } else {
                 throw new Error("You don't have authorization to perform this action");
             }
@@ -335,9 +393,11 @@ module.exports = {
     deleteAccession: function({
         accession_id
     }, context) {
-        return checkAuthorization(context, 'Accession', 'delete').then(authorization => {
+        return checkAuthorization(context, 'Accession', 'delete').then(async authorization => {
             if (authorization === true) {
-                return accession.deleteOne(accession_id);
+                if(await accession.validForDeletion(accession_id, context )){
+                  return accession.deleteOne(accession_id);
+                }
             } else {
                 throw new Error("You don't have authorization to perform this action");
             }

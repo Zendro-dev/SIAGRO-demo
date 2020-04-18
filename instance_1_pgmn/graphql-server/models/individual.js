@@ -107,7 +107,6 @@ module.exports = class Individual extends Sequelize.Model {
 
 
         }, {
-            indexes: ['accessionId'],
             modelName: "individual",
             tableName: "individuals",
             sequelize
@@ -135,6 +134,12 @@ module.exports = class Individual extends Sequelize.Model {
     static countRecords(search) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -145,6 +150,12 @@ module.exports = class Individual extends Sequelize.Model {
     static readAll(search, order, pagination) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -191,6 +202,12 @@ module.exports = class Individual extends Sequelize.Model {
          * Search conditions
          */
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -339,25 +356,25 @@ module.exports = class Individual extends Sequelize.Model {
                         });
                         let promises_associations = [];
                         if (input.addMeasurements) {
-                            let wrong_ids = await helper.checkExistence(input.addMeasurements, models.measurement);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids: ${wrong_ids.join(",")} in model measurement were not found.`);
-                            } else {
-                                promises_associations.push(item.setMeasurements(input.addMeasurements, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addMeasurements, models.measurement);
+                            //if(wrong_ids.length > 0){
+                            //    throw new Error(`Ids ${wrong_ids.join(",")} in model measurement were not found.`);
+                            //}else{
+                            promises_associations.push(item.setMeasurements(input.addMeasurements, {
+                                transaction: t
+                            }));
+                            //}
                         }
 
                         if (input.addAccession) {
-                            let wrong_ids = await helper.checkExistence(input.addAccession, models.accession);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids: ${wrong_ids.join(",")} in model accession were not found.`);
-                            } else {
-                                promises_associations.push(item.setAccession(input.addAccession, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addAccession, models.accession);
+                            //if(wrong_ids.length > 0){
+                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
+                            //}else{
+                            promises_associations.push(item.setAccession(input.addAccession, {
+                                transaction: t
+                            }));
+                            //}
                         }
                         return Promise.all(promises_associations).then(() => {
                             return item
@@ -405,36 +422,36 @@ module.exports = class Individual extends Sequelize.Model {
                         });
 
                         if (input.addMeasurements) {
-                            let wrong_ids = await helper.checkExistence(input.addMeasurements, models.measurement);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids: ${wrong_ids.join(",")} in model measurement were not found.`);
-                            } else {
-                                promises_associations.push(updated.addMeasurements(input.addMeasurements, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addMeasurements, models.measurement);
+                            //if(wrong_ids.length > 0){
+                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model measurement were not found.`);
+                            //}else{
+                            promises_associations.push(updated.addMeasurements(input.addMeasurements, {
+                                transaction: t
+                            }));
+                            //}
                         }
 
                         if (input.removeMeasurements) {
-                            let ids_associated = await item.getMeasurements().map(t => `${t[models.measurement.idAttribute()]}`);
-                            await helper.asyncForEach(input.removeMeasurements, id => {
-                                if (!ids_associated.includes(id)) {
-                                    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
-                                }
-                            });
+                            //let ids_associated = await item.getMeasurements().map(t => `${t[models.measurement.idAttribute()]}`);
+                            //await helper.asyncForEach(input.removeMeasurements, id =>{
+                            //  if(!ids_associated.includes(id)){
+                            //    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
+                            //  }
+                            //});
                             promises_associations.push(updated.removeMeasurements(input.removeMeasurements, {
                                 transaction: t
                             }));
                         }
                         if (input.addAccession) {
-                            let wrong_ids = await helper.checkExistence(input.addAccession, models.accession);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
-                            } else {
-                                promises_associations.push(updated.setAccession(input.addAccession, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addAccession, models.accession);
+                            //if(wrong_ids.length > 0){
+                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
+                            //}else{
+                            promises_associations.push(updated.setAccession(input.addAccession, {
+                                transaction: t
+                            }));
+                            //}
                         } else if (input.addAccession === null) {
                             promises_associations.push(updated.setAccession(input.addAccession, {
                                 transaction: t
@@ -541,20 +558,18 @@ module.exports = class Individual extends Sequelize.Model {
         if (search === undefined) {
             return models.accession.readById(this.accessionId);
         } else {
-            let id_search = {
+
+            //build new search filter
+            let nsearch = helper.addSearchField({
+                "search": search,
                 "field": models.accession.idAttribute(),
                 "value": {
                     "value": this.accessionId
                 },
                 "operator": "eq"
-            }
+            });
 
-            let ext_search = {
-                "operator": "and",
-                "search": [id_search, search]
-            }
-
-            return models.accession.readAll(ext_search)
+            return models.accession.readAll(nsearch)
                 .then(found => {
                     if (found) {
                         return found[0]
@@ -587,53 +602,35 @@ module.exports = class Individual extends Sequelize.Model {
         order,
         pagination
     }) {
-        if (search === undefined) {
-            return models.measurement.readAll({
-                "field": "individual_id",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            }, order, pagination);
-        } else {
-            return models.measurement.readAll({
-                "operator": "and",
-                "search": [{
-                    "field": "individual_id",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            }, order, pagination)
-        }
+
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "individual_id",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
+
+        return models.measurement.readAll(nsearch, order, pagination);
     }
 
     countFilteredMeasurementsImpl({
         search
     }) {
 
-        if (search === undefined) {
-            return models.measurement.countRecords({
-                "field": "individual_id",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            });
-        } else {
-            return models.measurement.countRecords({
-                "operator": "and",
-                "search": [{
-                    "field": "individual_id",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            })
-        }
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "individual_id",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
 
+        return models.measurement.countRecords(nsearch);
     }
 
     measurementsConnectionImpl({
@@ -641,26 +638,18 @@ module.exports = class Individual extends Sequelize.Model {
         order,
         pagination
     }) {
-        if (search === undefined) {
-            return models.measurement.readAllCursor({
-                "field": "individual_id",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            }, order, pagination);
-        } else {
-            return models.measurement.readAllCursor({
-                "operator": "and",
-                "search": [{
-                    "field": "individual_id",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            }, order, pagination)
-        }
+
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "individual_id",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
+
+        return models.measurement.readAllCursor(nsearch, order, pagination);
     }
 
 

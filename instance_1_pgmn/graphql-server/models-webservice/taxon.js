@@ -186,53 +186,35 @@ module.exports = class Taxon {
         order,
         pagination
     }) {
-        if (search === undefined) {
-            return models.accession.readAll({
-                "field": "taxon_id",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            }, order, pagination);
-        } else {
-            return models.accession.readAll({
-                "operator": "and",
-                "search": [{
-                    "field": "taxon_id",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            }, order, pagination)
-        }
+
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "taxon_id",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
+
+        return models.accession.readAll(nsearch, order, pagination);
     }
 
     countFilteredAccessionsImpl({
         search
     }) {
 
-        if (search === undefined) {
-            return models.accession.countRecords({
-                "field": "taxon_id",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            });
-        } else {
-            return models.accession.countRecords({
-                "operator": "and",
-                "search": [{
-                    "field": "taxon_id",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            })
-        }
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "taxon_id",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
 
+        return models.accession.countRecords(nsearch);
     }
 
     accessionsConnectionImpl({
@@ -240,26 +222,18 @@ module.exports = class Taxon {
         order,
         pagination
     }) {
-        if (search === undefined) {
-            return models.accession.readAllCursor({
-                "field": "taxon_id",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            }, order, pagination);
-        } else {
-            return models.accession.readAllCursor({
-                "operator": "and",
-                "search": [{
-                    "field": "taxon_id",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            }, order, pagination)
-        }
+
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "taxon_id",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
+
+        return models.accession.readAllCursor(nsearch, order, pagination);
     }
 
 

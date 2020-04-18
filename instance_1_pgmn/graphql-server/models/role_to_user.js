@@ -70,6 +70,12 @@ module.exports = class role_to_user extends Sequelize.Model {
     static countRecords(search) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -80,6 +86,12 @@ module.exports = class role_to_user extends Sequelize.Model {
     static readAll(search, order, pagination) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -126,6 +138,12 @@ module.exports = class role_to_user extends Sequelize.Model {
          * Search conditions
          */
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;

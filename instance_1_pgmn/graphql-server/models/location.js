@@ -161,6 +161,12 @@ module.exports = class Location extends Sequelize.Model {
     static countRecords(search) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -171,6 +177,12 @@ module.exports = class Location extends Sequelize.Model {
     static readAll(search, order, pagination) {
         let options = {};
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -217,6 +229,12 @@ module.exports = class Location extends Sequelize.Model {
          * Search conditions
          */
         if (search !== undefined) {
+
+            //check
+            if (typeof search !== 'object') {
+                throw new Error('Illegal "search" argument type, it must be an object.');
+            }
+
             let arg = new searchArg(search);
             let arg_sequelize = arg.toSequelize();
             options['where'] = arg_sequelize;
@@ -365,14 +383,14 @@ module.exports = class Location extends Sequelize.Model {
                         });
                         let promises_associations = [];
                         if (input.addAccessions) {
-                            let wrong_ids = await helper.checkExistence(input.addAccessions, models.accession);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids: ${wrong_ids.join(",")} in model accession were not found.`);
-                            } else {
-                                promises_associations.push(item.setAccessions(input.addAccessions, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addAccessions, models.accession);
+                            //if(wrong_ids.length > 0){
+                            //    throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
+                            //}else{
+                            promises_associations.push(item.setAccessions(input.addAccessions, {
+                                transaction: t
+                            }));
+                            //}
                         }
 
                         return Promise.all(promises_associations).then(() => {
@@ -421,23 +439,23 @@ module.exports = class Location extends Sequelize.Model {
                         });
 
                         if (input.addAccessions) {
-                            let wrong_ids = await helper.checkExistence(input.addAccessions, models.accession);
-                            if (wrong_ids.length > 0) {
-                                throw new Error(`Ids: ${wrong_ids.join(",")} in model accession were not found.`);
-                            } else {
-                                promises_associations.push(updated.addAccessions(input.addAccessions, {
-                                    transaction: t
-                                }));
-                            }
+                            //let wrong_ids =  await helper.checkExistence(input.addAccessions, models.accession);
+                            //if(wrong_ids.length > 0){
+                            //  throw new Error(`Ids ${wrong_ids.join(",")} in model accession were not found.`);
+                            //}else{
+                            promises_associations.push(updated.addAccessions(input.addAccessions, {
+                                transaction: t
+                            }));
+                            //}
                         }
 
                         if (input.removeAccessions) {
-                            let ids_associated = await item.getAccessions().map(t => `${t[models.accession.idAttribute()]}`);
-                            await helper.asyncForEach(input.removeAccessions, id => {
-                                if (!ids_associated.includes(id)) {
-                                    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
-                                }
-                            });
+                            //let ids_associated = await item.getAccessions().map(t => `${t[models.accession.idAttribute()]}`);
+                            //await helper.asyncForEach(input.removeAccessions, id =>{
+                            //  if(!ids_associated.includes(id)){
+                            //    throw new Error(`The association with id ${id} that you're trying to remove desn't exists`);
+                            //  }
+                            //});
                             promises_associations.push(updated.removeAccessions(input.removeAccessions, {
                                 transaction: t
                             }));
@@ -536,53 +554,35 @@ module.exports = class Location extends Sequelize.Model {
         order,
         pagination
     }) {
-        if (search === undefined) {
-            return models.accession.readAll({
-                "field": "locationId",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            }, order, pagination);
-        } else {
-            return models.accession.readAll({
-                "operator": "and",
-                "search": [{
-                    "field": "locationId",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            }, order, pagination)
-        }
+
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "locationId",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
+
+        return models.accession.readAll(nsearch, order, pagination);
     }
 
     countFilteredAccessionsImpl({
         search
     }) {
 
-        if (search === undefined) {
-            return models.accession.countRecords({
-                "field": "locationId",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            });
-        } else {
-            return models.accession.countRecords({
-                "operator": "and",
-                "search": [{
-                    "field": "locationId",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            })
-        }
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "locationId",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
 
+        return models.accession.countRecords(nsearch);
     }
 
     accessionsConnectionImpl({
@@ -590,26 +590,18 @@ module.exports = class Location extends Sequelize.Model {
         order,
         pagination
     }) {
-        if (search === undefined) {
-            return models.accession.readAllCursor({
-                "field": "locationId",
-                "value": {
-                    "value": this.getIdValue()
-                },
-                "operator": "eq"
-            }, order, pagination);
-        } else {
-            return models.accession.readAllCursor({
-                "operator": "and",
-                "search": [{
-                    "field": "locationId",
-                    "value": {
-                        "value": this.getIdValue()
-                    },
-                    "operator": "eq"
-                }, search]
-            }, order, pagination)
-        }
+
+        //build new search filter
+        let nsearch = helper.addSearchField({
+            "search": search,
+            "field": "locationId",
+            "value": {
+                "value": this.getIdValue()
+            },
+            "operator": "eq"
+        });
+
+        return models.accession.readAllCursor(nsearch, order, pagination);
     }
 
 
