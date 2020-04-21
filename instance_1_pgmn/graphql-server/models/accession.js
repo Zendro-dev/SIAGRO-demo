@@ -1039,18 +1039,17 @@ module.exports = class Accession extends Sequelize.Model {
       let result_to_many = await Promise.all( promises_to_many);
       let result_to_one = await Promise.all(promises_to_one);
 
-      let get_to_many_associated = result_to_many.filter( (r, index) => r !== null && typeof r === 'object' && r.hasOwnProperty('edges') && r.edges.length > 0 );
+      //filter the associations with at least one item associated
+      let get_to_many_associated = result_to_many.filter( (r, index) => r !== null && typeof r === 'object' && r.hasOwnProperty('edges') && r.edges.length > 0 ).map( r => r.edges.length );
       let get_to_one_associated = result_to_one.filter( (r, index) => r !== null );
 
-      if( get_to_one_associated.length >0 || get_to_many_associated.length >0){
-        return true;
-      }
+      let total_count = get_to_one_associated.length + get_to_many_associated.reduce( (accumulator, current_val )=> accumulator + current_val ,  0 );
 
-      return false;
+      return total_count;
     }
 
     static async validForDeletion(id, context){
-      if( await this.countAllAssociatedRecords(id, context) ){
+      if( await this.countAllAssociatedRecords(id, context) > 0 ){
         throw new Error(`Accession with accession_id ${id} has associated records and is NOT valid for deletion. Please clean up before you delete.`);
       }
 
