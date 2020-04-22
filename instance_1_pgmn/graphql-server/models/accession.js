@@ -1023,6 +1023,15 @@ module.exports = class Accession extends Sequelize.Model {
         return {};
     }
 
+
+
+    /**
+     * @static countAllAssociatedRecords - Count records associated with another given record
+     *
+     * @param  {ID} id      Id of the record which the associations will be counted
+     * @param  {objec} context Default context by resolver
+     * @return {Int}         Number of associated records
+     */
     static async countAllAssociatedRecords(id, context ){
 
       let accession = await this.readById(id);
@@ -1031,23 +1040,29 @@ module.exports = class Accession extends Sequelize.Model {
 
       let promises_to_many = [];
       let promises_to_one = [];
-      promises_to_many.push( accession.individualsConnection({}) );
-      promises_to_many.push( accession.measurementsConnection({}) );
-      promises_to_one.push( accession.location({}) );
 
+      promises_to_many.push( accession.countFilteredIndividuals({}, context) );
+      promises_to_many.push( accession.countFilteredMeasurements({}, context) );
+      promises_to_one.push( accession.location({}) );
 
       let result_to_many = await Promise.all( promises_to_many);
       let result_to_one = await Promise.all(promises_to_one);
 
-      //filter the associations with at least one item associated
-      let get_to_many_associated = result_to_many.filter( (r, index) => r !== null && typeof r === 'object' && r.hasOwnProperty('edges') && r.edges.length > 0 ).map( r => r.edges.length );
-      let get_to_one_associated = result_to_one.filter( (r, index) => r !== null );
 
-      let total_count = get_to_one_associated.length + get_to_many_associated.reduce( (accumulator, current_val )=> accumulator + current_val ,  0 );
+      let get_to_many_associated = result_to_many.reduce( (accumulator, current_val )=> accumulator + current_val ,  0 );
+      let get_to_one_associated = result_to_one.filter( (r, index) => r !== null ).length;
 
-      return total_count;
+      return get_to_one_associated + get_to_many_associated;
     }
 
+
+    /**
+     * @static validForDeletion - Checks wether a record is allowed to be deleted
+     *
+     * @param  {ID} id      Id of record to check if it can be deleted
+     * @param  {object} context Default context by resolver
+     * @return {boolean}         True if it is allowed to be deleted and false otherwise
+     */
     static async validForDeletion(id, context){
       if( await this.countAllAssociatedRecords(id, context) > 0 ){
         throw new Error(`Accession with accession_id ${id} has associated records and is NOT valid for deletion. Please clean up before you delete.`);
