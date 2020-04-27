@@ -12,7 +12,7 @@ const {
 } = require('../utils/errors');
 const os = require('os');
 const models = require(path.join(__dirname, '..', 'models_index.js'));
-
+const resolvers = require(path.join(__dirname, 'index.js'));
 
 
 /**
@@ -215,6 +215,64 @@ accession.prototype.measurementsConnection = async function({
     };
 }
 
+
+/**
+ * countAllAssociatedRecords - Count records associated with another given record
+ *
+ * @param  {ID} id      Id of the record which the associations will be counted
+ * @param  {objec} context Default context by resolver
+ * @return {Int}         Number of associated records
+ */
+ async function countAllAssociatedRecords(id, context ){
+  let accession = await resolvers.readOneAccession({accession_id: id}, context); //this.readById(id);
+  //check that record actually exists
+  if (accession === null) throw new Error(`Record with ID = ${id} does not exist`);
+
+  let promises_to_many = [];
+  let promises_to_one = [];
+
+  //console.log( "CONTEXT BEFORE:", context );
+
+  promises_to_many.push( accession.countFilteredIndividuals({}, context) );
+  promises_to_many.push( accession.countFilteredMeasurements({}, context) );
+  promises_to_one.push( accession.location({},context) );
+
+  //console.log( "CONTEXT AFTER:", context );
+
+  let result_to_many = await Promise.all( promises_to_many);
+  let result_to_one = await Promise.all(promises_to_one);
+
+  console.log("RESULT TO ONE: ", result_to_one);
+  console.log("RESULT TO MANY: ", result_to_many);
+
+  let get_to_many_associated = result_to_many.reduce( (accumulator, current_val )=> accumulator + current_val ,  0 );
+  let get_to_one_associated = result_to_one.filter( (r, index) => r !== null && r!== undefined).length;
+
+  return get_to_one_associated + get_to_many_associated;
+}
+
+
+/**
+ * validForDeletion - Checks wether a record is allowed to be deleted
+ *
+ * @param  {ID} id      Id of record to check if it can be deleted
+ * @param  {object} context Default context by resolver
+ * @return {boolean}         True if it is allowed to be deleted and false otherwise
+ */
+async function validForDeletion(id, context){
+
+  if( await countAllAssociatedRecords(id, context) > 0 ){
+    throw new Error(`Accession with accession_id ${id} has associated records and is NOT valid for deletion. Please clean up before you delete.`);
+  }
+
+  if (context.benignErrors.length > 0) {
+    throw new Error('Errors occurred when counting associated records. No deletion permitted for reasons of security.');
+  }
+
+  return true;
+}
+
+
 module.exports = {
 
     /**
@@ -379,7 +437,9 @@ module.exports = {
         try {
             let authorizationCheck = await checkAuthorization(context, accession.adapterForIri(accession_id), 'delete');
             if (authorizationCheck === true) {
+              if(await validForDeletion(accession_id, context )){
                 return accession.deleteOne(accession_id);
+              }
             } else { //adapter not auth
                 throw new Error("You don't have authorization to perform this action on adapter");
             }
